@@ -1,65 +1,95 @@
-# Chess Game
+# Chess Game (C++ + Qt 6)
 
-A simple 2-player chess game built with C++ and Qt framework, featuring a graphical user interface.
+A simple 2-player chess game built using **C++**, **Qt 6**, and **CMake**, featuring a clean graphical user interface and fully working chess movement logic.
+
+---
 
 ## Features
 
 - Full chess board with proper piece placement
-- 2-player gameplay (White and Black)
-- Click-based piece selection and movement
-- Valid move highlighting and visualization
-- Turn indicator showing current player
+- 2-player gameplay (White & Black)
+- Click-based piece selection
+- Green circle indicators for valid moves
+- Capture system
+- Turn indicator
 - Check detection
-- Reset/New Game functionality
+- Reset / New Game option
 
-## Prerequisites
+---
 
-- C++ compiler (GCC, Clang, MSVC)
-- CMake 3.16 or higher
-- Qt 5 (Core, GUI, Widgets)
+## Requirements
 
-### Installing Qt on Windows
+- **Qt 6.10.1 (MinGW 64-bit)**
+- **MinGW 13.1.0** (bundled with Qt)
+- **CMake 3.16+**
 
-1. **Using vcpkg** (Recommended):
-   ```powershell
-   git clone https://github.com/Microsoft/vcpkg.git
-   cd vcpkg
-   .\vcpkg integrate install
-   .\vcpkg install qt5:x64-windows
-   ```
+**MSVC builds are NOT supported.  
+This project must be built using MinGW.**
 
-2. **Using Qt Online Installer**:
-   - Download from https://www.qt.io/download
-   - Install Qt 5.15.x or later
+---
 
-## Building the Project
+## 🛠 Installation & Setup (Windows + MinGW)
 
-### Step 1: Configure with CMake
+### 1️. Install Qt 6
 
-```powershell
+Download the Qt Online Installer:
+
+https://www.qt.io/download-open-source
+
+During installation, select:
+
+- **Qt → 6.10.1 → MinGW 64-bit**
+- **Developer Tools → MinGW 13.1.0**
+
+❗ Do NOT install MSVC toolchains.
+
+---
+
+## Building the Project (MinGW Only)
+
+### 2️. Create Build Directory
+
+````sh
+cd "path/to/chess"
 mkdir build
 cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=<path-to-vcpkg>/scripts/buildsystems/vcpkg.cmake
-```
 
-Or if using Qt installed via online installer:
-```powershell
-mkdir build
-cd build
-cmake .. -DCMAKE_PREFIX_PATH="C:\Qt\5.15.x\msvc2019_64"
-```
 
-### Step 2: Build
+### Step 3: Configure with CMake (MinGW Generator)
 
 ```powershell
-cmake --build . --config Release
-```
+cmake .. -G "MinGW Makefiles" ^
+  -DCMAKE_C_COMPILER="C:/Qt/Tools/mingw1310_64/bin/gcc.exe" ^
+  -DCMAKE_CXX_COMPILER="C:/Qt/Tools/mingw1310_64/bin/g++.exe" ^
+  -DCMAKE_PREFIX_PATH="C:/Qt/6.10.1/mingw_64"
 
-### Step 3: Run
+````
 
-```powershell
-.\Release\ChessGame.exe
-```
+## 4. Build
+
+Run the following commands in powershell to compile and run the program.
+
+mingw32-make
+build/ChessGame.exe
+
+If Qt DLLs are missing → run the deployment step below.
+
+📦 Deploying Qt Libraries (Required for .exe)
+"C:/Qt/6.10.1/mingw_64/bin/windeployqt.exe" "path/to/chess/build/ChessGame.exe"
+
+This copies required DLLs:
+
+Qt6Core.dll
+
+Qt6Gui.dll
+
+Qt6Widgets.dll
+
+platforms/qwindows.dll
+
+image plugins
+
+After deployment, the .exe can run anywhere.
 
 ## How to Play
 
@@ -94,17 +124,6 @@ cmake --build . --config Release
     ├── MainWindow.cpp      # Main window implementation
     └── main.cpp            # Application entry point
 ```
-
-## Future Enhancements
-
-- En passant and castling moves
-- Pawn promotion
-- Checkmate detection
-- Move history/undo
-- AI opponent
-- Save/Load game functionality
-- Move validation with check evasion
-- Stalemate detection
 
 ## License
 

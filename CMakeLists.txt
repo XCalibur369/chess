@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets REQUIRED)
 
 set(SOURCES
     src/main.cpp
@@ -24,4 +24,4 @@ set(HEADERS
 add_executable(ChessGame ${SOURCES} ${HEADERS})
 
 target_include_directories(ChessGame PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(ChessGame Qt5::Core Qt5::Gui Qt5::Widgets)
+target_link_libraries(ChessGame Qt6::Core Qt6::Gui Qt6::Widgets)

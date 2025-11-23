@@ -1,24 +1,29 @@
 #include "ChessBoard.h"
-#include <QPainter>
-#include <QMouseEvent>
-#include <QApplication>
-#include <QScreen>
+#include <QtGui/QPainter>
+#include <QtGui/QPainterPath>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QScreen>
+#include <QtWidgets/QApplication>
 
 ChessBoard::ChessBoard(QWidget *parent)
-    : QWidget(parent), chessGame(nullptr), squareSize(60), 
-      selectedRow(-1), selectedCol(-1) {
+    : QWidget(parent), chessGame(nullptr), squareSize(60),
+      selectedRow(-1), selectedCol(-1)
+{
     setMinimumSize(480, 480);
     setStyleSheet("background-color: #f0f0f0;");
     boardOffset = QPoint(20, 20);
 }
 
-void ChessBoard::setChessGame(Chess *game) {
+void ChessBoard::setChessGame(Chess *game)
+{
     chessGame = game;
     update();
 }
 
-void ChessBoard::resetBoard() {
-    if (chessGame) {
+void ChessBoard::resetBoard()
+{
+    if (chessGame)
+    {
         chessGame->resetBoard();
         selectedRow = -1;
         selectedCol = -1;
@@ -26,21 +31,25 @@ void ChessBoard::resetBoard() {
     }
 }
 
-void ChessBoard::paintEvent(QPaintEvent *event) {
+void ChessBoard::paintEvent(QPaintEvent *event)
+{
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    
+
     drawBoard(painter);
     drawHighlights(painter);
     drawPieces(painter);
 }
 
-void ChessBoard::drawBoard(QPainter &painter) {
+void ChessBoard::drawBoard(QPainter &painter)
+{
     QColor lightSquare(240, 217, 181);
     QColor darkSquare(181, 136, 99);
-    
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
+
+    for (int row = 0; row < 8; ++row)
+    {
+        for (int col = 0; col < 8; ++col)
+        {
             QRect rect = getSquareRect(row, col);
             QColor squareColor = ((row + col) % 2 == 0) ? lightSquare : darkSquare;
             painter.fillRect(rect, squareColor);
@@ -49,17 +58,21 @@ void ChessBoard::drawBoard(QPainter &painter) {
     }
 }
 
-void ChessBoard::drawHighlights(QPainter &painter) {
-    if (selectedRow >= 0 && selectedCol >= 0) {
+void ChessBoard::drawHighlights(QPainter &painter)
+{
+    if (selectedRow >= 0 && selectedCol >= 0)
+    {
         QRect selectedRect = getSquareRect(selectedRow, selectedCol);
         painter.fillRect(selectedRect, QColor(255, 255, 0, 100));
         painter.drawRect(selectedRect);
-        
+
         // Draw valid moves
-        if (chessGame) {
+        if (chessGame)
+        {
             auto validMoves = chessGame->getValidMoves(selectedRow, selectedCol);
             painter.setBrush(QColor(0, 255, 0, 100));
-            for (const auto& move : validMoves) {
+            for (const auto &move : validMoves)
+            {
                 QRect moveRect = getSquareRect(move.first, move.second);
                 int centerX = moveRect.center().x();
                 int centerY = moveRect.center().y();
@@ -69,57 +82,71 @@ void ChessBoard::drawHighlights(QPainter &painter) {
     }
 }
 
-void ChessBoard::drawPieces(QPainter &painter) {
-    if (!chessGame) return;
-    
+void ChessBoard::drawPieces(QPainter &painter)
+{
+    if (!chessGame)
+        return;
+
     painter.setFont(QFont("Arial", 40, QFont::Bold));
-    
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
-            const Piece& piece = chessGame->getPiece(row, col);
-            if (!piece.isEmpty()) {
+
+    for (int row = 0; row < 8; ++row)
+    {
+        for (int col = 0; col < 8; ++col)
+        {
+            const Piece &piece = chessGame->getPiece(row, col);
+            if (!piece.isEmpty())
+            {
                 QRect rect = getSquareRect(row, col);
                 QString symbol = getPieceSymbol(piece);
-                
+
                 painter.setPen(piece.color == PieceColor::WHITE ? Qt::white : Qt::black);
-                
-                if (piece.color == PieceColor::BLACK) {
+
+                if (piece.color == PieceColor::BLACK)
+                {
                     painter.setPen(Qt::black);
-                } else {
+                }
+                else
+                {
                     painter.setPen(Qt::white);
                     QPainterPath path;
-                    path.addText(rect.center().x() - 15, rect.center().y() + 15, 
-                                painter.font(), symbol);
+                    path.addText(rect.center().x() - 15, rect.center().y() + 15,
+                                 painter.font(), symbol);
                     painter.drawPath(path);
                     painter.drawText(rect, Qt::AlignCenter, symbol);
                 }
-                
+
                 painter.drawText(rect, Qt::AlignCenter, symbol);
             }
         }
     }
 }
 
-void ChessBoard::mousePressEvent(QMouseEvent *event) {
-    if (!chessGame) return;
-    
+void ChessBoard::mousePressEvent(QMouseEvent *event)
+{
+    if (!chessGame)
+        return;
+
     int row, col;
     getSquareFromPoint(event->pos(), row, col);
-    
-    if (row < 0 || row >= 8 || col < 0 || col >= 8) {
+
+    if (row < 0 || row >= 8 || col < 0 || col >= 8)
+    {
         selectedRow = -1;
         selectedCol = -1;
         update();
         return;
     }
-    
+
     // If clicking an empty square or opponent's piece, deselect
-    const Piece& clickedPiece = chessGame->getPiece(row, col);
-    
-    if (selectedRow >= 0 && selectedCol >= 0) {
+    const Piece &clickedPiece = chessGame->getPiece(row, col);
+
+    if (selectedRow >= 0 && selectedCol >= 0)
+    {
         // Try to move
-        if (row != selectedRow || col != selectedCol) {
-            if (chessGame->movePiece(selectedRow, selectedCol, row, col)) {
+        if (row != selectedRow || col != selectedCol)
+        {
+            if (chessGame->movePiece(selectedRow, selectedCol, row, col))
+            {
                 selectedRow = -1;
                 selectedCol = -1;
                 update();
@@ -127,45 +154,52 @@ void ChessBoard::mousePressEvent(QMouseEvent *event) {
             }
         }
     }
-    
+
     // Select piece if it belongs to current player
-    if (!clickedPiece.isEmpty() && clickedPiece.color == chessGame->getCurrentPlayer()) {
+    if (!clickedPiece.isEmpty() && clickedPiece.color == chessGame->getCurrentPlayer())
+    {
         selectedRow = row;
         selectedCol = col;
-    } else {
+    }
+    else
+    {
         selectedRow = -1;
         selectedCol = -1;
     }
-    
+
     update();
 }
 
-void ChessBoard::getSquareFromPoint(const QPoint &point, int &row, int &col) const {
+void ChessBoard::getSquareFromPoint(const QPoint &point, int &row, int &col) const
+{
     col = (point.x() - boardOffset.x()) / squareSize;
     row = (point.y() - boardOffset.y()) / squareSize;
 }
 
-QRect ChessBoard::getSquareRect(int row, int col) const {
+QRect ChessBoard::getSquareRect(int row, int col) const
+{
     int x = boardOffset.x() + col * squareSize;
     int y = boardOffset.y() + row * squareSize;
     return QRect(x, y, squareSize, squareSize);
 }
 
-QString ChessBoard::getPieceSymbol(const Piece &piece) const {
-    switch (piece.type) {
-        case PieceType::PAWN:
-            return "♟";
-        case PieceType::ROOK:
-            return "♜";
-        case PieceType::KNIGHT:
-            return "♞";
-        case PieceType::BISHOP:
-            return "♝";
-        case PieceType::QUEEN:
-            return "♛";
-        case PieceType::KING:
-            return "♚";
-        default:
-            return "";
+QString ChessBoard::getPieceSymbol(const Piece &piece) const
+{
+    switch (piece.type)
+    {
+    case PieceType::PAWN:
+        return "♟";
+    case PieceType::ROOK:
+        return "♜";
+    case PieceType::KNIGHT:
+        return "♞";
+    case PieceType::BISHOP:
+        return "♝";
+    case PieceType::QUEEN:
+        return "♛";
+    case PieceType::KING:
+        return "♚";
+    default:
+        return "";
     }
 }
