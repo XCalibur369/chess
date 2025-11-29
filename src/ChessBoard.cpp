@@ -61,6 +61,28 @@ void ChessBoard::drawBoard(QPainter &painter)
 
 void ChessBoard::drawHighlights(QPainter &painter)
 {
+    if (!chessGame)
+        return;
+
+    // Highlight king in red if in check
+    if (chessGame->isCheck())
+    {
+        // Find the king's position
+        for (int row = 0; row < 8; ++row)
+        {
+            for (int col = 0; col < 8; ++col)
+            {
+                const Piece &piece = chessGame->getPiece(row, col);
+                if (piece.type == PieceType::KING && piece.color == chessGame->getCurrentPlayer())
+                {
+                    QRect kingRect = getSquareRect(row, col);
+                    painter.fillRect(kingRect, QColor(255, 0, 0, 150));
+                    painter.drawRect(kingRect);
+                }
+            }
+        }
+    }
+
     if (selectedRow >= 0 && selectedCol >= 0)
     {
         QRect selectedRect = getSquareRect(selectedRow, selectedCol);
@@ -72,12 +94,68 @@ void ChessBoard::drawHighlights(QPainter &painter)
         {
             auto validMoves = chessGame->getValidMoves(selectedRow, selectedCol);
             painter.setBrush(QColor(0, 255, 0, 100));
+            
             for (const auto &move : validMoves)
             {
                 QRect moveRect = getSquareRect(move.first, move.second);
                 int centerX = moveRect.center().x();
                 int centerY = moveRect.center().y();
-                painter.drawEllipse(centerX - 5, centerY - 5, 10, 10);
+                
+                // Check if this square has an opponent's piece (capturable)
+                const Piece &targetPiece = chessGame->getPiece(move.first, move.second);
+                if (!targetPiece.isEmpty() && targetPiece.color != chessGame->getCurrentPlayer())
+                {
+                    // Draw larger green dot for capturable pieces
+                    painter.setBrush(QColor(0, 255, 0, 180));
+                    painter.setPen(Qt::green);
+                    painter.drawEllipse(centerX - 8, centerY - 8, 16, 16);
+                }
+                else
+                {
+                    // Draw smaller green dot for empty squares
+                    painter.setBrush(QColor(0, 255, 0, 150));
+                    painter.setPen(Qt::darkGreen);
+                    painter.drawEllipse(centerX - 5, centerY - 5, 10, 10);
+                }
+            }
+        }
+    }
+    
+    // Also highlight capturable opponent pieces even without selection
+    if (chessGame && selectedRow < 0 && selectedCol < 0)
+    {
+        for (int row = 0; row < 8; ++row)
+        {
+            for (int col = 0; col < 8; ++col)
+            {
+                const Piece &piece = chessGame->getPiece(row, col);
+                // Highlight opponent pieces that can be captured by current player
+                if (!piece.isEmpty() && piece.color != chessGame->getCurrentPlayer())
+                {
+                    // Check if any piece of current player can capture this piece
+                    for (int fromRow = 0; fromRow < 8; ++fromRow)
+                    {
+                        for (int fromCol = 0; fromCol < 8; ++fromCol)
+                        {
+                            const Piece &myPiece = chessGame->getPiece(fromRow, fromCol);
+                            if (!myPiece.isEmpty() && myPiece.color == chessGame->getCurrentPlayer())
+                            {
+                                if (chessGame->isValidMove(fromRow, fromCol, row, col))
+                                {
+                                    // This piece can be captured - draw a small green indicator
+                                    QRect captureRect = getSquareRect(row, col);
+                                    int centerX = captureRect.center().x();
+                                    int centerY = captureRect.center().y();
+                                    painter.setBrush(QColor(0, 200, 0, 120));
+                                    painter.setPen(Qt::darkGreen);
+                                    painter.drawEllipse(centerX - 3, centerY - 3, 6, 6);
+                                    goto next_piece;  // Move to next piece to avoid overlapping dots
+                                }
+                            }
+                        }
+                    }
+                    next_piece:;
+                }
             }
         }
     }
@@ -162,6 +240,16 @@ void ChessBoard::mousePressEvent(QMouseEvent *event)
         {
             if (chessGame->movePiece(selectedRow, selectedCol, row, col))
             {
+                // Check if pawn promotion is needed
+                const Piece &movedPiece = chessGame->getPiece(row, col);
+                if (movedPiece.type == PieceType::PAWN && 
+                    ((movedPiece.color == PieceColor::WHITE && row == 0) ||
+                     (movedPiece.color == PieceColor::BLACK && row == 7)))
+                {
+                    // Emit promotion signal
+                    emit promotionNeeded(row, col);
+                }
+                
                 selectedRow = -1;
                 selectedCol = -1;
                 update();

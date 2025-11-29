@@ -16,12 +16,15 @@ public:
 private slots:
     void resetGame();
     void updateStatus();
+    void handlePromotion(int row, int col);
 
 private:
     Chess *chessGame;
     ChessBoard *boardWidget;
     QLabel *statusLabel;
     QLabel *turnIndicatorLabel;
+    int promotionRow;
+    int promotionCol;
     
     void setupUI();
     void connectSignals();

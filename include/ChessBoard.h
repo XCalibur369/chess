@@ -16,6 +16,7 @@ public:
     
 signals:
     void moveCompleted();
+    void promotionNeeded(int row, int col);
     
 protected:
     void paintEvent(QPaintEvent *event) override;

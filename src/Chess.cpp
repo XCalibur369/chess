@@ -121,7 +121,7 @@ PieceColor Chess::getCurrentPlayer() const {
 }
 
 bool Chess::isGameOver() const {
-    return isCheckmate();
+    return isCheckmate() || isStalemate();
 }
 
 bool Chess::isCheckmate() const {
@@ -129,6 +129,13 @@ bool Chess::isCheckmate() const {
     // 1. King is in check
     // 2. Player has no legal moves
     return isKingInCheck(currentPlayer) && !hasAnyLegalMove(currentPlayer);
+}
+
+bool Chess::isStalemate() const {
+    // Current player is in stalemate if:
+    // 1. King is NOT in check
+    // 2. Player has no legal moves
+    return !isKingInCheck(currentPlayer) && !hasAnyLegalMove(currentPlayer);
 }
 
 bool Chess::isCheck() const {
@@ -334,3 +341,11 @@ bool Chess::hasAnyLegalMove(PieceColor color) const {
     return false;
 }
 
+void Chess::promotePawn(int row, int col, PieceType newType) {
+    if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+        const Piece& piece = board[row][col];
+        if (!piece.isEmpty() && piece.type == PieceType::PAWN) {
+            board[row][col] = Piece(newType, piece.color);
+        }
+    }
+}

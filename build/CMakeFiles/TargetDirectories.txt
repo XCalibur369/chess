@@ -1,0 +1,5 @@
+C:/codebase/Chess/build/CMakeFiles/ChessGame.dir
+C:/codebase/Chess/build/CMakeFiles/edit_cache.dir
+C:/codebase/Chess/build/CMakeFiles/rebuild_cache.dir
+C:/codebase/Chess/build/CMakeFiles/ChessGame_autogen_timestamp_deps.dir
+C:/codebase/Chess/build/CMakeFiles/ChessGame_autogen.dir

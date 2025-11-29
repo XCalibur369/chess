@@ -43,11 +43,13 @@ public:
     // Move validation
     bool isValidMove(int fromRow, int fromCol, int toRow, int toCol) const;
     bool movePiece(int fromRow, int fromCol, int toRow, int toCol);
+    void promotePawn(int row, int col, PieceType newType);
     
     // Game state
     PieceColor getCurrentPlayer() const;
     bool isGameOver() const;
     bool isCheckmate() const;
+    bool isStalemate() const;
     bool isCheck() const;
     bool hasAnyLegalMove(PieceColor color) const;
     
@@ -55,7 +57,7 @@ public:
     std::vector<std::pair<int, int>> getValidMoves(int row, int col) const;
     
 private:
-    std::array<std::array<Piece, 8>, 8> board;
+    mutable std::array<std::array<Piece, 8>, 8> board;
     PieceColor currentPlayer;
     
     // Move validation helpers
