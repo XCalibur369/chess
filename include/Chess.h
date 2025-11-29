@@ -49,6 +49,7 @@ public:
     bool isGameOver() const;
     bool isCheckmate() const;
     bool isCheck() const;
+    bool hasAnyLegalMove(PieceColor color) const;
     
     // Helper methods
     std::vector<std::pair<int, int>> getValidMoves(int row, int col) const;

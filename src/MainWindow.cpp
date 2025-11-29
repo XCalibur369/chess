@@ -43,6 +43,9 @@ void MainWindow::setupUI()
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(boardWidget, 1);
 
+    // Connect board signals
+    connect(boardWidget, &ChessBoard::moveCompleted, this, &MainWindow::updateStatus);
+
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 }
@@ -55,14 +58,25 @@ void MainWindow::resetGame()
 
 void MainWindow::updateStatus()
 {
-    QString playerText = (chessGame->getCurrentPlayer() == PieceColor::WHITE)
-                             ? "White's Turn"
-                             : "Black's Turn";
-
-    if (chessGame->isCheck())
+    if (chessGame->isCheckmate())
     {
-        playerText += " (Check!)";
+        QString winner = (chessGame->getCurrentPlayer() == PieceColor::WHITE) 
+            ? "BLACK" : "WHITE";
+        statusLabel->setText("CHECKMATE! " + winner + " WINS!");
+        statusLabel->setStyleSheet("QLabel { font-size: 16px; font-weight: bold; color: red; }");
     }
+    else
+    {
+        QString playerText = (chessGame->getCurrentPlayer() == PieceColor::WHITE)
+                                 ? "White's Turn"
+                                 : "Black's Turn";
 
-    statusLabel->setText(playerText);
+        if (chessGame->isCheck())
+        {
+            playerText += " (Check!)";
+        }
+
+        statusLabel->setText(playerText);
+        statusLabel->setStyleSheet("QLabel { font-size: 14px; font-weight: bold; }");
+    }
 }

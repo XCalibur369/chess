@@ -9,9 +9,10 @@ ChessBoard::ChessBoard(QWidget *parent)
     : QWidget(parent), chessGame(nullptr), squareSize(60),
       selectedRow(-1), selectedCol(-1)
 {
-    setMinimumSize(480, 480);
+    setMinimumSize(520, 520);
+    setMaximumSize(520, 520);
     setStyleSheet("background-color: #f0f0f0;");
-    boardOffset = QPoint(20, 20);
+    boardOffset = QPoint(10, 10);
 }
 
 void ChessBoard::setChessGame(Chess *game)
@@ -87,7 +88,8 @@ void ChessBoard::drawPieces(QPainter &painter)
     if (!chessGame)
         return;
 
-    painter.setFont(QFont("Arial", 40, QFont::Bold));
+    QFont font("Arial", 32, QFont::Bold);
+    painter.setFont(font);
 
     for (int row = 0; row < 8; ++row)
     {
@@ -99,23 +101,24 @@ void ChessBoard::drawPieces(QPainter &painter)
                 QRect rect = getSquareRect(row, col);
                 QString symbol = getPieceSymbol(piece);
 
-                painter.setPen(piece.color == PieceColor::WHITE ? Qt::white : Qt::black);
-
+                // Draw black pieces in black
                 if (piece.color == PieceColor::BLACK)
                 {
                     painter.setPen(Qt::black);
-                }
-                else
-                {
-                    painter.setPen(Qt::white);
-                    QPainterPath path;
-                    path.addText(rect.center().x() - 15, rect.center().y() + 15,
-                                 painter.font(), symbol);
-                    painter.drawPath(path);
                     painter.drawText(rect, Qt::AlignCenter, symbol);
                 }
-
-                painter.drawText(rect, Qt::AlignCenter, symbol);
+                // Draw white pieces with outline for contrast
+                else
+                {
+                    painter.setPen(Qt::black);
+                    // Draw outline
+                    QPainterPath path;
+                    path.addText(rect.center().x() - 18, rect.center().y() + 12, font, symbol);
+                    painter.drawPath(path);
+                    // Draw filled white
+                    painter.setPen(Qt::white);
+                    painter.drawText(rect, Qt::AlignCenter, symbol);
+                }
             }
         }
     }
@@ -150,6 +153,7 @@ void ChessBoard::mousePressEvent(QMouseEvent *event)
                 selectedRow = -1;
                 selectedCol = -1;
                 update();
+                emit moveCompleted();
                 return;
             }
         }

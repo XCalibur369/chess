@@ -14,6 +14,9 @@ public:
     void setChessGame(Chess *game);
     void resetBoard();
     
+signals:
+    void moveCompleted();
+    
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;

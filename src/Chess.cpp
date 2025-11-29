@@ -111,9 +111,10 @@ bool Chess::isGameOver() const {
 }
 
 bool Chess::isCheckmate() const {
-    // Simplified: just check if king is in check
-    // Full implementation would check for available moves
-    return false;
+    // Current player is in checkmate if:
+    // 1. King is in check
+    // 2. Player has no legal moves
+    return isKingInCheck(currentPlayer) && !hasAnyLegalMove(currentPlayer);
 }
 
 bool Chess::isCheck() const {
@@ -273,3 +274,49 @@ bool Chess::isSquareAttacked(int row, int col, PieceColor byColor) const {
     }
     return false;
 }
+
+bool Chess::hasAnyLegalMove(PieceColor color) const {
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            const Piece& piece = board[i][j];
+            if (!piece.isEmpty() && piece.color == color) {
+                // Check all possible moves for this piece
+                for (int toRow = 0; toRow < 8; ++toRow) {
+                    for (int toCol = 0; toCol < 8; ++toCol) {
+                        // Try the move
+                        const Piece& targetPiece = board[toRow][toCol];
+                        
+                        // Check if move is valid
+                        if (!targetPiece.isEmpty() && targetPiece.color == color) {
+                            continue; // Can't capture own piece
+                        }
+                        
+                        if (!canPieceMove(i, j, toRow, toCol)) {
+                            continue;
+                        }
+                        
+                        // Simulate the move
+                        Piece originalPiece = board[i][j];
+                        Piece capturedPiece = board[toRow][toCol];
+                        board[toRow][toCol] = originalPiece;
+                        board[i][j] = Piece();
+                        
+                        // Check if king is still in check after this move
+                        bool kingInCheck = isKingInCheck(color);
+                        
+                        // Undo the move
+                        board[i][j] = originalPiece;
+                        board[toRow][toCol] = capturedPiece;
+                        
+                        // If this move leaves king safe, it's a legal move
+                        if (!kingInCheck) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
