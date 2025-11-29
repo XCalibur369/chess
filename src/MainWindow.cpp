@@ -8,8 +8,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("Chess Game");
-    setGeometry(100, 100, 900, 600);
+    setWindowTitle("Chess Game - 2 Player");
+    setGeometry(100, 100, 750, 650);
 
     chessGame = new Chess();
     boardWidget = new ChessBoard(this);
@@ -33,11 +33,25 @@ void MainWindow::setupUI()
     QPushButton *resetButton = new QPushButton("New Game", this);
     connect(resetButton, &QPushButton::clicked, this, &MainWindow::resetGame);
 
-    statusLabel = new QLabel("White's Turn", this);
-    statusLabel->setStyleSheet("QLabel { font-size: 14px; font-weight: bold; }");
+    turnIndicatorLabel = new QLabel("⚪ White's Turn", this);
+    turnIndicatorLabel->setStyleSheet(
+        "QLabel { "
+        "font-size: 18px; "
+        "font-weight: bold; "
+        "color: white; "
+        "background-color: #333333; "
+        "padding: 8px 16px; "
+        "border-radius: 4px; "
+        "}"
+    );
+    turnIndicatorLabel->setMinimumWidth(200);
+
+    statusLabel = new QLabel("", this);
+    statusLabel->setStyleSheet("QLabel { font-size: 12px; font-weight: bold; }");
 
     topLayout->addWidget(resetButton);
     topLayout->addStretch();
+    topLayout->addWidget(turnIndicatorLabel);
     topLayout->addWidget(statusLabel);
 
     mainLayout->addLayout(topLayout);
@@ -62,21 +76,63 @@ void MainWindow::updateStatus()
     {
         QString winner = (chessGame->getCurrentPlayer() == PieceColor::WHITE) 
             ? "BLACK" : "WHITE";
-        statusLabel->setText("CHECKMATE! " + winner + " WINS!");
-        statusLabel->setStyleSheet("QLabel { font-size: 16px; font-weight: bold; color: red; }");
+        turnIndicatorLabel->setText("🏁 CHECKMATE!");
+        turnIndicatorLabel->setStyleSheet(
+            "QLabel { "
+            "font-size: 18px; "
+            "font-weight: bold; "
+            "color: white; "
+            "background-color: #ff0000; "
+            "padding: 8px 16px; "
+            "border-radius: 4px; "
+            "}"
+        );
+        statusLabel->setText(winner + " WINS!");
+        statusLabel->setStyleSheet("QLabel { font-size: 14px; font-weight: bold; color: #ff0000; }");
     }
     else
     {
-        QString playerText = (chessGame->getCurrentPlayer() == PieceColor::WHITE)
-                                 ? "White's Turn"
-                                 : "Black's Turn";
-
-        if (chessGame->isCheck())
+        // Update turn indicator
+        if (chessGame->getCurrentPlayer() == PieceColor::WHITE)
         {
-            playerText += " (Check!)";
+            turnIndicatorLabel->setText("⚪ White's Turn");
+            turnIndicatorLabel->setStyleSheet(
+                "QLabel { "
+                "font-size: 18px; "
+                "font-weight: bold; "
+                "color: white; "
+                "background-color: #333333; "
+                "padding: 8px 16px; "
+                "border-radius: 4px; "
+                "}"
+            );
+        }
+        else
+        {
+            turnIndicatorLabel->setText("● Black's Turn");
+            turnIndicatorLabel->setStyleSheet(
+                "QLabel { "
+                "font-size: 18px; "
+                "font-weight: bold; "
+                "color: white; "
+                "background-color: #000000; "
+                "padding: 8px 16px; "
+                "border-radius: 4px; "
+                "}"
+            );
         }
 
-        statusLabel->setText(playerText);
-        statusLabel->setStyleSheet("QLabel { font-size: 14px; font-weight: bold; }");
+        // Update status for check
+        QString statusText = "";
+        if (chessGame->isCheck())
+        {
+            statusText = "⚠️ CHECK!";
+            statusLabel->setStyleSheet("QLabel { font-size: 12px; font-weight: bold; color: #ff6600; }");
+        }
+        else
+        {
+            statusLabel->setStyleSheet("QLabel { font-size: 12px; font-weight: bold; }");
+        }
+        statusLabel->setText(statusText);
     }
 }

@@ -88,7 +88,7 @@ void ChessBoard::drawPieces(QPainter &painter)
     if (!chessGame)
         return;
 
-    QFont font("Arial", 32, QFont::Bold);
+    QFont font("Arial", 36, QFont::Bold);
     painter.setFont(font);
 
     for (int row = 0; row < 8; ++row)
@@ -101,21 +101,33 @@ void ChessBoard::drawPieces(QPainter &painter)
                 QRect rect = getSquareRect(row, col);
                 QString symbol = getPieceSymbol(piece);
 
-                // Draw black pieces in black
                 if (piece.color == PieceColor::BLACK)
                 {
+                    // Black pieces: solid black
                     painter.setPen(Qt::black);
                     painter.drawText(rect, Qt::AlignCenter, symbol);
                 }
-                // Draw white pieces with outline for contrast
                 else
                 {
-                    painter.setPen(Qt::black);
-                    // Draw outline
-                    QPainterPath path;
-                    path.addText(rect.center().x() - 18, rect.center().y() + 12, font, symbol);
-                    painter.drawPath(path);
-                    // Draw filled white
+                    // White pieces: draw with black outline for contrast
+                    int centerX = rect.center().x();
+                    int centerY = rect.center().y();
+                    
+                    // Draw black outline (shadow effect)
+                    painter.setPen(QPen(Qt::black, 2));
+                    for (int dx = -2; dx <= 2; ++dx)
+                    {
+                        for (int dy = -2; dy <= 2; ++dy)
+                        {
+                            if (dx != 0 || dy != 0)
+                            {
+                                QRect offsetRect = rect.translated(dx, dy);
+                                painter.drawText(offsetRect, Qt::AlignCenter, symbol);
+                            }
+                        }
+                    }
+                    
+                    // Draw white text on top
                     painter.setPen(Qt::white);
                     painter.drawText(rect, Qt::AlignCenter, symbol);
                 }

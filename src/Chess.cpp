@@ -84,7 +84,21 @@ bool Chess::isValidMove(int fromRow, int fromCol, int toRow, int toCol) const {
         return false;
     }
     
-    return true;
+    // Simulate the move and check if it leaves the king in check
+    Piece originalPiece = board[fromRow][fromCol];
+    Piece capturedPiece = board[toRow][toCol];
+    board[toRow][toCol] = originalPiece;
+    board[fromRow][fromCol] = Piece();
+    
+    // Check if king is in check after this move
+    bool kingInCheck = isKingInCheck(currentPlayer);
+    
+    // Undo the move
+    board[fromRow][fromCol] = originalPiece;
+    board[toRow][toCol] = capturedPiece;
+    
+    // Move is valid only if king is not in check after it
+    return !kingInCheck;
 }
 
 bool Chess::movePiece(int fromRow, int fromCol, int toRow, int toCol) {

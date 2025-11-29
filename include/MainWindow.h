@@ -21,6 +21,7 @@ private:
     Chess *chessGame;
     ChessBoard *boardWidget;
     QLabel *statusLabel;
+    QLabel *turnIndicatorLabel;
     
     void setupUI();
     void connectSignals();
